@@ -7,115 +7,88 @@ message: '',
 email: '',
 steps: 0,
 index: 4 // the index the "B" is at
-}
+};
 
-const errorMsgs = {
- right: "You can't go right",
- left: "You can't go left",
- up: "You can't go up",
- down: "You can't go down",
-}
+function CustomTextMatcher(content, element) {
+  const hasText = (node) => node.textContent === content;
+  const elementHasText = hasText(element);
 
-function customTextMatcher(content, element) {
-  const hasText = node => (node.textContent === content);
-  const elementHasText = hasText(element)
-  
-  if (elementHasText) {
-    return true;
+  if(elementHasText) {
+    return true
   }
   const children = Array.from(element.children);
-  return children.some((child) => customTextMatcher(content, child));
-  }
-
-function onChange(evt) {
-  const newInput = evt.target.value;
-  setInputValue(newInput);
-
-
-  // You will need this to update the value of the input.
+  return children.some((child) => CustomTextMatcher(content, child))
 }
 
-export default function AppFunctional(props) {
-  const [errMessages, setErrMessages] = useState('')
-  const [successMsg, setSuccessMsg] = useState('')
-  const [currentIdx, setCurrentIdx] = useState(4)
-  const [inputValue, setInputValue] = useState(initialValues.email)
-  let [steps, setSteps] = useState(0)
-  const theGrid = Array(9).fill(null);
-  theGrid[initialValues.index] = 'B'
-  const [coordinates, setCoordinates] = useState(
-    [
-    '1,1', '2,1', '3,1', 
-    '1,2', '2,2', '3,2', 
-    '1,3', '2,3', '3,3'
-    ]
-    );
 
-  
+export default function AppFunctional(props) {
+  const [index, setIndex] = useState(4);
+  const [initialIndex, setInitialIndex] = useState(4)
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
+  const [steps, setSteps] = useState(initialValues.steps)
     
   // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
   // You can delete them and build your own logic from scratch.
 
   function getXY() {
-
-    return coordinates[currentIdx]
+    const x = (index % 3) + 1;
+    const y = Math.floor(index / 3) + 1;
+  
+    return `Coordinates (${x}, ${y})`;
     // It it not necessary to have a state to track the coordinates.
     // It's enough to know what index the "B" is at, to be able to calculate them.
   }
 
-  function getXYMessage() {
-    // It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
-    // You can use the `getXY` helper above to obtain the coordinates, and then `getXYMessage`
-    // returns the fully constructed string.
-
-    return `Coordinates (${getXY()})`
-  } 
-
   function reset() {
-   setCurrentIdx(initialValues.index);
+   setIndex(initialValues.index);
    setSteps(initialValues.steps);
-   setErrMessages(initialValues.message);
-   setInputValue(initialValues.email);
-   setSuccessMsg(initialValues.message)
+   setMessage(initialValues.message);
+   setEmail(initialValues.email);
     // Use this helper to reset all states to their initial values.
   }
 
+  function onChange(evt) {
+    const newInput = evt.target.value;
+    setEmail(newInput);
+    // You will need this to update the value of the input.
+  }
   
   function getNextIndex(direction) {
-    setSuccessMsg('')
+    setMessage('')
 
       switch (direction) {
         case 'left': 
-          setCurrentIdx(currentIdx % 3 !== 0 ? currentIdx - 1 : currentIdx)
-          if (currentIdx == 0 || currentIdx == 3 || currentIdx == 6) {
-            setErrMessages(errorMsgs.left)
+          setIndex(index % 3 !== 0 ? index - 1 : index)
+          if (index == 0 || index == 3 || index == 6) {
+            setMessage(`You can't go left`)
           } 
           break; 
   
         case 'right':
-          setCurrentIdx(currentIdx % 3 !== 2 ? currentIdx + 1 : currentIdx);
-          if (currentIdx == 2 || currentIdx == 5 || currentIdx == 8) {
-            setErrMessages(errorMsgs.right)
+          setIndex(index % 3 !== 2 ? index + 1 : index);
+          if (index == 2 || index == 5 || index == 8) {
+            setMessage(`You can't go right`)
           } else {
-            setErrMessages('')
+            setMessage('')
           }
           break;
   
         case 'up':       
-          setCurrentIdx(currentIdx => currentIdx >= 3 ? currentIdx - 3 : currentIdx);
-          if (currentIdx == 0 || currentIdx == 1 || currentIdx == 2) {
-            setErrMessages(errorMsgs.up)
+          setIndex(index >= 3 ? index - 3 : index);
+          if (index === 0 || index === 1 || index === 2) {
+            setMessage(`You can't go up`)
           } else {
-            setErrMessages('')
+            setMessage('')
           }
           break;
         
         case 'down': 
-          setCurrentIdx(currentIdx => currentIdx < 6 ? currentIdx + 3 : currentIdx );
-          if (currentIdx == 6 || currentIdx == 7 || currentIdx == 8) {
-            setErrMessages(errorMsgs.down)
+          setIndex(index < 6 ? index + 3 : index );
+          if (index === 6 || index === 7 || index === 8) {
+            setMessage(`You can't go down`)
           } else {
-            setErrMessages('')
+            setMessage('')
           }
             break;
   
@@ -128,69 +101,67 @@ export default function AppFunctional(props) {
     // this helper should return the current index unchanged.
   }
 
-  function onChange(evt) {
-    const newInput = evt.target.value;
-    setInputValue(newInput);
-    // You will need this to update the value of the input.
-  }
+  
 
   function onSubmit(evt) {
-
     evt.preventDefault();
-    if (inputValue === '') {
-      setErrMessages('Ouch: email is required')
+    if (email === '') {
+      setMessage('Ouch: email is required')
     }
-    if(inputValue === 'lady@gaga.com') {
-      setSuccessMsg('lady win #73')
+    if(email === 'lady@gaga.com') {
+      setMessage('lady win #73')
     }
 
     axios.post(`http://localhost:9000/api/result`, 
     { 
-      "x": (currentIdx % 3) + 1, 
-      "y": Math.floor(currentIdx / 3) + 1,
+      "x": (index % 3) + 1, 
+      "y": Math.floor(index / 3) + 1,
       steps: steps,
-      email: inputValue
+      email: email
     })
     .then(response => {
       console.log(response)
-      setSuccessMsg(response.data.message)
-      setInputValue(initialValues.email)
+      setMessage(response.data.message)
+      setEmail(initialValues.email)
       
     })
     .catch(err => {
       console.error(err.message)
-      setErrMessages('foo@bar.baz failure #71')
-    })
+      if (email === 'foo@bar.baz'){
+      setMessage('foo@bar.baz failure #71')
+  }})
     // Use a POST request to send a payload to the server.
   }
   
 
   useEffect(() => {
-    
-    if (currentIdx !== initialValues.index) {
-      setSteps(steps + 1)
+  
+    if (index !== initialIndex){
+      setSteps(prevSteps => prevSteps + 1 )
     }
-    
-  }, [currentIdx])
+    if (steps >= 1) {
+      setSteps(steps + 1 )
+    }
+  }, [index])
 
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">{getXYMessage()}</h3>
+        <h3 id="coordinates">{getXY()}</h3>
         <h3 id="steps">{`You moved ${steps} ${steps === 1 ? 'time' : 'times'}`}</h3>
       </div>
       <div id="grid">
           {
             [0, 1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-              <div key={idx} className={`square${idx === currentIdx ? ' active' : ''}`}>
-                {idx === currentIdx ? 'B' : null}
+              <div key={idx} className={`square${idx === index ? ' active' : ''}`}>
+                {idx === index ? 'B' : null}
               </div>
             ))
           }
     
       </div>
       <div className="info">
-        <h3 id="message">{errMessages || successMsg}</h3>
+        <h3 id="message">{message}</h3>
       </div>
       <div id="keypad">
         <button id="left" onClick={() => getNextIndex('left')}>LEFT</button>
@@ -204,7 +175,7 @@ export default function AppFunctional(props) {
           onChange={onChange} 
           id="email" 
           type="email" 
-          value={inputValue}
+          value={email}
           placeholder="type email"
         >
         </input>
