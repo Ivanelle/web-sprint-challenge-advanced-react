@@ -13,7 +13,7 @@ function CustomTextMatcher(content, element) {
   const hasText = (node) => node.textContent === content;
   const elementHasText = hasText(element);
 
-  if(elementHasText) {
+  if (elementHasText) {
     return true
   }
   const children = Array.from(element.children);
