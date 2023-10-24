@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import axios from 'axios';
 
 // Suggested initial states
@@ -52,9 +52,10 @@ export default class AppClass extends React.Component {
       if (index !== 0 && index !== 3 && index !== 6) {
         this.setState((prevState) => ({
           index: prevState.index % 3 !== 0 ? prevState.index - 1 : prevState.index,
+          steps: prevState.steps + 1,
         }));
       } else {
-        this.setState({message: `You  can't go left`})
+        this.setState({message: `You can't go left`})
       }
         
       break;
@@ -63,6 +64,7 @@ export default class AppClass extends React.Component {
         if (index !== 2 && index !== 5 && index !== 8) {
           this.setState((prevState) => ({
             index: prevState.index % 3 !== 2 ? prevState.index + 1 : prevState.index,
+            steps: prevState.steps + 1,
           }));
         } else {
           this.setState({ message: `You can't go right`})
@@ -74,6 +76,7 @@ export default class AppClass extends React.Component {
         if (index !== 0 && index !== 1 && index !== 2) {
           this.setState((prevState) => ({
             index: prevState.index >= 3 ? prevState.index - 3 : prevState.index,
+            steps: prevState.steps + 1,
           }));
            
         } else {
@@ -85,7 +88,8 @@ export default class AppClass extends React.Component {
         case 'down': 
           if (index !== 6  && index !== 7 && index !== 8) {
             this.setState((prevState) => ({
-              index: prevState.index < 6 ? prevState.index + 3 : prevState.index
+              index: prevState.index < 6 ? prevState.index + 3 : prevState.index,
+              steps: prevState.steps + 1,
             }));
           } else {
             this.setState({ message: `You can't go down`})
@@ -116,6 +120,8 @@ export default class AppClass extends React.Component {
 
     if (email === '') {
       this.setState({ message: 'Ouch: email is required' });
+    } else if (email === 'bad@email') {
+      this.setState({ message: 'Ouch: email must be a valid email'})
     }
 
     axios
@@ -134,24 +140,6 @@ export default class AppClass extends React.Component {
           this.setState({message: 'foo@bar.baz failure #71'})
         }
       });
-  }
-
-
-  componentDidUpdate(prevProps, prevState) {
-
-    if (this.state.index !== initialIndex &&
-      this.state.index !== prevState.index)
-    {
-      this.setState(
-        (prevState) => ({ steps: prevState.steps + 1}
-          
-          ),
-        () => {}
-      );
-    }
-    while (this.state.steps >= 1) {
-      this.state.steps + 1
-    }
   }
 
   render() {

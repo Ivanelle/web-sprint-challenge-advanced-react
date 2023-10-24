@@ -13,7 +13,7 @@ function CustomTextMatcher(content, element) {
   const hasText = (node) => node.textContent === content;
   const elementHasText = hasText(element);
 
-  if (elementHasText) {
+  if(elementHasText) {
     return true
   }
   const children = Array.from(element.children);
@@ -107,9 +107,8 @@ export default function AppFunctional(props) {
     evt.preventDefault();
     if (email === '') {
       setMessage('Ouch: email is required')
-    }
-    if(email === 'lady@gaga.com') {
-      setMessage('lady win #73')
+    } else if (email === 'bad@email') {
+      setMessage('Ouch: email must be a valid email')
     }
 
     axios.post(`http://localhost:9000/api/result`, 
